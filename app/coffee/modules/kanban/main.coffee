@@ -97,6 +97,73 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
         taiga.defineImmutableProperty @.scope, "usByStatus", () =>
             return @kanbanUserstoriesService.usByStatus
 
+    generateFilters: ->
+        #TODO: on demand¿?
+
+        # urlfilters = @.getUrlFilters()
+        @scope.filters =  {}
+
+        loadFilters = {}
+        loadFilters.project = @scope.projectId
+        # loadFilters.tags = urlfilters.tags
+        # loadFilters.status = urlfilters.status
+        # loadFilters.q = urlfilters.q
+        loadFilters.milestone = 'null'
+
+        return @rs.userstories.filtersData(loadFilters).then (data) =>
+            console.log data
+
+            @.filters = [
+                {
+                    title: @translate.instant("ISSUES.FILTERS.CATEGORIES.STATUS"),
+                    dataType: "status",
+                    content: data.statuses
+                },
+                {
+                    title: @translate.instant("ISSUES.FILTERS.CATEGORIES.TAGS"),
+                    dataType: "tags",
+                    content: data.tags
+                },
+                {
+                    title: @translate.instant("ISSUES.FILTERS.CATEGORIES.ASSIGNED_TO"),
+                    dataType: "assignedTo",
+                    content: _.map data.assigned_to, (it) ->
+                        it.name = it.full_name || "Unassigned"
+
+                        return it
+                },
+                {
+                    title: @translate.instant("ISSUES.FILTERS.CATEGORIES.CREATED_BY"),
+                    dataType: "createdBy",
+                    content: _.map data.owners, (it) ->
+                        it.name = it.full_name
+
+                        return it
+                }
+            ];
+
+
+
+            # # Build filters data structure
+            # @scope.filters.status = choicesFiltersFormat(data.statuses, "status", @scope.usStatusById)
+            # @scope.filters.tags = tagsFilterFormat(data.tags)
+
+            # selectedTags = _.filter(@scope.filters.tags, "selected")
+            # selectedTags = _.map(selectedTags, "id")
+
+            # selectedStatuses = _.filter(@scope.filters.status, "selected")
+            # selectedStatuses = _.map(selectedStatuses, "id")
+
+            # @.markSelectedFilters(@scope.filters, urlfilters)
+
+            #store query params
+            # @rs.userstories.storeQueryParams(@scope.projectId, {
+            #     "status": selectedStatuses,
+            #     "tags": selectedTags,
+            #     "project": @scope.projectId
+            #     "milestone": null
+            # })
+
     initializeEventHandlers: ->
         @scope.$on "usform:new:success", (event, us) =>
             @.refreshTagsColors().then () =>
@@ -233,7 +300,7 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
         return promise.then (project) =>
             @.fillUsersAndRoles(project.members, project.roles)
             @.initializeSubscription()
-            @.loadKanban()
+            @.loadKanban().then(@.generateFilters)
 
 
     ## View Mode methods

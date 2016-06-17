@@ -4,6 +4,7 @@
     height: $main-height;
     max-height: $main-height;
     max-width: calc(100vw - 50px);
+    position: relative;
     header {
         min-height: 70px;
     }

@@ -1,0 +1,59 @@
+h1.surround
+    span.title(translate="ISSUES.FILTERS.TITLE")
+
+form.surround
+    fieldset
+        input(
+            type="text",
+            placeholder="{{'ISSUES.FILTERS.INPUT_SEARCH_PLACEHOLDER' | translate}}",
+            ng-model="filtersQ"
+        )
+        tg-svg.search-action(
+            svg-icon="icon-search",
+            title="{{'ISSUES.FILTERS.TITLE_ACTION_SEARCH' | translate}}"
+        )
+
+.filters-step-cat
+    //- div.filters-applied
+
+    //- a.hide.button.button-gray.save-filters(href="", title="{{'COMMON.SAVE' | translate}}", ng-class="{hide: filters.length}", translate="ISSUES.FILTERS.ACTION_SAVE_CUSTOM_FILTER")
+
+    .filters-cats
+        ul
+            li(
+                ng-class="{selected: vm.isOpen(filter)}"
+                ng-show="!vm.currentFilter"
+                ng-repeat="filter in ::vm.filters track by filter.dataType"
+            )
+                a.filters-cat-single(
+                    ng-class="{selected: vm.isOpen(filter)}"
+                    ng-click="vm.toggleFilter(filter)"
+                    href=""
+                    title="{{::filter.title}}"
+                )
+                    span.title {{::filter.title}}
+                    tg-svg.ng-animate-disabled(
+                        ng-if="!vm.isOpen(filter)"
+                        svg-icon="icon-arrow-right"
+                    )
+                    tg-svg.ng-animate-disabled(
+                        ng-if="vm.isOpen(filter)"
+                        svg-icon="icon-arrow-down"
+                    )
+
+                .filter-list(
+                    ng-if="vm.isOpen(filter)",
+                    tg-filter-slide-down
+                )
+                    .single-filter(ng-repeat="it in filter.content")
+                        span.name(ng-attr-style="{{it.color ? 'border-left: 3px solid ' + it.color: ''}}") {{it.name}}
+                        span.number {{it.count}}
+
+            li.custom-filters(ng-if="filters.myFilters.length")
+                a.filters-cat-single(
+                    href=""
+                    title="{{ 'ISSUES.FILTERS.CATEGORIES.CUSTOM_FILTERS' | translate}}"
+                    data-type="myFilters"
+                )
+                    span.title(translate="ISSUES.FILTERS.CATEGORIES.CUSTOM_FILTERS")
+                    tg-svg(svg-icon="icon-arrow-right")

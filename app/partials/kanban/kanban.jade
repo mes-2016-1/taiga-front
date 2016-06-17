@@ -6,6 +6,9 @@ div.wrapper(tg-kanban, ng-controller="KanbanController as ctrl"
 
     section.main.kanban
         include ../includes/components/mainTitle
+        tg-filter(
+          filters="ctrl.filters"
+        )
         tg-board-zoom(
             value="ctrl.zoom",
             storage="kanban_zoom"
