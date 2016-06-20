@@ -1,5 +1,5 @@
 .card-inner(
-    ng-class="{'blocked': vm.item.getIn(['model', 'is_blocked']), 'archived': vm.archived}"
+    ng-class="{'blocked': vm.item.getIn(['model', 'is_blocked']), 'archived': vm.archived, 'zoom-0': vm.zoom == 0, 'zoom-1': vm.zoom == 1, 'zoom-2': vm.zoom == 2, 'zoom-3': vm.zoom == 3, 'zoom-4': vm.zoom == 4}"
 )
     .card-tags
         span.card-tag(
@@ -13,6 +13,15 @@
         .card-owner-info(ng-if="vm.zoom >= 0 && vm.item.get('assigned_to')")
             img(ng-src="{{vm.item.getIn(['assigned_to', 'photo'])}}")
             span.card-owner-name(ng-if="vm.zoom >= 2") {{vm.item.getIn(['assigned_to', 'full_name'])}}
+            a.card-title(
+                ng-if="vm.zoom < 2"
+                href=""
+                tg-nav="{{vm.getNavKey()}}:project=vm.project.slug,ref=vm.item.getIn(['model', 'ref'])",
+                tg-nav-get-params="{\"kanban-status\": {{vm.item.getIn(['model', 'status'])}}}"
+                title="#{{ ::vm.item.getIn(['model', 'ref']) }} {{ vm.item.getIn(['model', 'subject'])}}"
+            ) 
+                span(ng-if="vm.zoom == 0") {{::"#" + vm.item.getIn(['model', 'ref'])}}
+                span.e2e-title(ng-if="vm.zoom == 1") {{vm.item.getIn(['model', 'subject'])}}
 
         .card-owner-info(ng-if="vm.zoom >= 0 && !vm.item.get('assigned_to')")
             img(ng-src="/#{v}/images/unnamed.png")
@@ -20,6 +29,15 @@
                 ng-if="vm.zoom >= 2",
                 translate="COMMON.ASSIGNED_TO.NOT_ASSIGNED"
             )
+            a.card-title(
+                ng-if="vm.zoom < 2"
+                href=""
+                tg-nav="{{vm.getNavKey()}}:project=vm.project.slug,ref=vm.item.getIn(['model', 'ref'])",
+                tg-nav-get-params="{\"kanban-status\": {{vm.item.getIn(['model', 'status'])}}}"
+                title="#{{ ::vm.item.getIn(['model', 'ref']) }} {{ vm.item.getIn(['model', 'subject'])}}"
+            ) 
+                span(ng-if="vm.zoom == 0") {{::"#" + vm.item.getIn(['model', 'ref'])}}
+                span.e2e-title(ng-if="vm.zoom == 1") {{vm.item.getIn(['model', 'subject'])}}
 
         .card-owner-actions(
             ng-if="vm.zoom >= 2"
@@ -42,7 +60,7 @@
                 tg-svg(svg-icon="icon-edit")
                 span(translate="COMMON.CARD.EDIT")
 
-    h2.card-title(ng-if="vm.zoom >= 1")
+    h2.card-title(ng-if="vm.zoom >= 2")
         a(
             href=""
             tg-nav="{{vm.getNavKey()}}:project=vm.project.slug,ref=vm.item.getIn(['model', 'ref'])",

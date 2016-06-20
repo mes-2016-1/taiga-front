@@ -1,10 +1,10 @@
 .card-slideshow
-    tg-svg.ion-chevron-left(
+    tg-svg.slideshow-icon.slideshow-left(
         ng-click="vm.previous()"
         ng-if="vm.hasPagination()"
         svg-icon="icon-arrow-left"
     )
-    tg-svg.ion-chevron-right(
+    tg-svg.slideshow-icon.slideshow-right(
         ng-click="vm.next()"
         ng-if="vm.hasPagination()"
         svg-icon="icon-arrow-right"
