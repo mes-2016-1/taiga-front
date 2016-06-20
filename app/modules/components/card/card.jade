@@ -100,7 +100,7 @@
             ) {{"#" + task.get('ref')}} {{task.get('subject')}}
 
     tg-card-slideshow(
-        ng-if="vm.zoom >= 3",
+        ng-if="vm.zoom >= 3 && !vm.item.getIn(['model', 'attachments'])"
         attachments="vm.item.getIn(['model', 'attachments'])"
     )
 

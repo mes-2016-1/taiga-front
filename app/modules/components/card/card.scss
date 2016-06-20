@@ -129,7 +129,6 @@
 }
 
 .card-completion {
-    height: 1rem;
     margin: 1rem;
     position: relative;
     .card-completion-bar {
@@ -200,8 +199,8 @@
 }
 
 .card-task {
+    @include font-size(xsmall);
     border-bottom: 1px solid $whitish;
-    font-size: 12px;
     list-style: none;
     a {
         color: $gray-light;
