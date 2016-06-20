@@ -26,7 +26,7 @@ taiga = @.taiga
 
 generateHash = taiga.generateHash
 
-resourceProvider = ($repo, $http, $urls, $storage) ->
+resourceProvider = ($repo, $http, $urls, $storage, $q) ->
     service = {}
     hashSuffix = "userstories-queryparams"
 
@@ -129,8 +129,46 @@ resourceProvider = ($repo, $http, $urls, $storage) ->
         hash = generateHash([projectId, 'showTags'])
         return $storage.get(hash) or null
 
+
+    service.getMyFilters = (projectId, filtersHashSuffix) ->
+        deferred = $q.defer()
+        url = $urls.resolve("user-storage")
+        ns = "#{projectId}:#{filtersHashSuffix}"
+        hash = generateHash([projectId, ns])
+
+        promise = $http.get("#{url}/#{hash}")
+        promise.then (data) ->
+            deferred.resolve(data.data.value)
+        promise.then null, (data) ->
+            deferred.resolve({})
+
+        return deferred.promise
+
+    service.storeMyFilters = (projectId, myFilters, filtersHashSuffix) ->
+        deferred = $q.defer()
+        url = $urls.resolve("user-storage")
+        ns = "#{projectId}:#{filtersHashSuffix}"
+        hash = generateHash([projectId, ns])
+        if _.isEmpty(myFilters)
+            promise = $http.delete("#{url}/#{hash}", {key: hash, value:myFilters})
+            promise.then ->
+                deferred.resolve()
+            promise.then null, ->
+                deferred.reject()
+        else
+            promise = $http.put("#{url}/#{hash}", {key: hash, value:myFilters})
+            promise.then (data) ->
+                deferred.resolve()
+            promise.then null, (data) ->
+                innerPromise = $http.post("#{url}", {key: hash, value:myFilters})
+                innerPromise.then ->
+                    deferred.resolve()
+                innerPromise.then null, ->
+                    deferred.reject()
+        return deferred.promise
+
     return (instance) ->
         instance.userstories = service
 
 module = angular.module("taigaResources")
-module.factory("$tgUserstoriesResourcesProvider", ["$tgRepo", "$tgHttp", "$tgUrls", "$tgStorage", resourceProvider])
+module.factory("$tgUserstoriesResourcesProvider", ["$tgRepo", "$tgHttp", "$tgUrls", "$tgStorage", "$q", resourceProvider])

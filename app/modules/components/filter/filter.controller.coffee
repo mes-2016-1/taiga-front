@@ -22,14 +22,39 @@ class FilterController
 
     constructor: () ->
         @.opened = null
+        @.filtersSelected = []
+        @.customFilterForm = false
+        @.customFilterName = ''
 
-    toggleFilter: (filter) ->
-        if @.opened == filter.dataType
+    toggleFilterCategory: (filterName) ->
+        if @.opened == filterName
             @.opened = null
         else
-            @.opened = filter.dataType
+            @.opened = filterName
 
-    isOpen: (filter) ->
-        return @.opened == filter.dataType
+    isOpen: (filterName) ->
+        return @.opened == filterName
+
+    saveCustomFilter: () ->
+        @.onSaveCustomFilter({name: @.customFilterName, filters: @.filtersSelected})
+
+    unselectFilter: (appliedFilter) ->
+        _.remove @.filtersSelected, (it) ->
+            return appliedFilter.category.dataType == it.category.dataType &&
+              appliedFilter.filter.name == it.filter.name
+
+        @.onChangeFilter({filters: @.filtersSelected})
+
+    selectFilter: (filterCategory, filter) ->
+        @.filtersSelected.push({
+            category: filterCategory
+            filter: filter
+        })
+
+        @.onChangeFilter({filters: @.filtersSelected})
+
+    isFilterSelected: (filterCategory, filter) ->
+        return  !!_.find @.filtersSelected, (it) ->
+            return filterCategory.dataType == it.category.dataType && filter.name == it.filter.name
 
 angular.module('taigaComponents').controller('Filter', FilterController)

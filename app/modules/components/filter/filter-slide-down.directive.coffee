@@ -23,18 +23,19 @@ FilterSlideDownDirective = () ->
 
         scope.$watch attrs.ngIf, (value) ->
             if value
-                scope.$applyAsync () ->
-                    wrapperHeight = filter.height()
-                    contentHeight = 0
+                filter.find('.filter-list').hide()
 
-                    filter.children().each () ->
-                        contentHeight += $(this).outerHeight(true)
+                wrapperHeight = filter.height()
+                contentHeight = 0
 
-                    $(el.context.nextSibling)
-                        .css({
-                            "max-height": wrapperHeight - contentHeight,
-                            "display": "block"
-                        })
+                filter.children().each () ->
+                    contentHeight += $(this).outerHeight(true)
+
+                $(el.context.nextSibling)
+                    .css({
+                        "max-height": wrapperHeight - contentHeight,
+                        "display": "block"
+                    })
 
     return {
         priority: 900,

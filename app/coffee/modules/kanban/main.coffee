@@ -97,6 +97,30 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
         taiga.defineImmutableProperty @.scope, "usByStatus", () =>
             return @kanbanUserstoriesService.usByStatus
 
+    formatFilters: (filters) ->
+        filters = _.groupBy filters, (it) -> it.category.dataType
+
+        filters = _.forOwn filters, (filterCategory, key) ->
+            filter = _.map filterCategory, (it) ->
+                return it.filter.id || it.filter.name
+
+            filters[key] = filter.join(',')
+
+        return filters
+
+    changeFilter: (filters) ->
+        filters = @.formatFilters(filters)
+
+        @.replaceAllFilters(filters)
+
+    saveCustomFilter: (name, filters) ->
+        filters = @.formatFilters(filters)
+
+        @rs.userstories.getMyFilters(@scope.projectId, 'kanban-filters').then (userFilters) =>
+            userFilters[name] = filters
+
+            @rs.userstories.storeMyFilters(@scope.projectId, userFilters)
+
     generateFilters: ->
         #TODO: on demand¿?
 

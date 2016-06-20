@@ -296,6 +296,7 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
         deferred = @q.defer()
         @rs.issues.getMyFilters(@scope.projectId).then (filters) =>
             filters[newFilter] = @location.search()
+
             @rs.issues.storeMyFilters(@scope.projectId, filters).then =>
                 deferred.resolve()
         return deferred.promise
