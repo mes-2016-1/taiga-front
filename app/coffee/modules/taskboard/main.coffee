@@ -193,7 +193,10 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin)
             return sprint
 
     loadTasks: ->
-        return @rs.tasks.list(@scope.projectId, @scope.sprintId).then (tasks) =>
+        params = {
+            include_attachments: true
+        }
+        return @rs.tasks.list(@scope.projectId, @scope.sprintId, null, params).then (tasks) =>
             @taskboardTasksService.init(@scope.project, @scope.usersById)
             @taskboardTasksService.set(tasks)
 

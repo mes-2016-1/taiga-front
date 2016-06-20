@@ -47,8 +47,8 @@ resourceProvider = ($repo, $http, $urls, $storage) ->
     service.listInAllProjects = (filters) ->
         return $repo.queryMany("tasks", filters)
 
-    service.list = (projectId, sprintId=null, userStoryId=null) ->
-        params = {project: projectId}
+    service.list = (projectId, sprintId=null, userStoryId=null, params) ->
+        params = _.merge(params, {project: projectId})
         params.milestone = sprintId if sprintId
         params.user_story = userStoryId if userStoryId
         service.storeQueryParams(projectId, params)
