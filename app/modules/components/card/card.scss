@@ -1,26 +1,24 @@
 .card {
     background: $white;
-    border-radius: 4px;
-    box-shadow: 3px 3px 2px $gray-light;
+    border-radius: .25rem;
+    box-shadow: 2px 2px 4px darken($whitish, 10%);
     cursor: move;
     display: block;
-    margin: .2rem;
+    margin: .4rem;
     overflow: hidden;
     transition: box-shadow .2s ease-in;
-    .card-title {
-        padding-left: .4rem;
-    }
     &:hover {
-        box-shadow: 4px 4px 4px $whitish;
+        box-shadow: 3px 3px 4px darken($whitish, 10%);
     }
 }
 
 .card-tags {
     display: flex;
-    .tag {
+    .card-tag {
         display: block;
         flex: 1;
         height: .5rem;
+
     }
 }
 
@@ -55,21 +53,34 @@
     top: 0;
     transition: all .2s;
     width: 100%;
+    &:hover {
+        color: $primary-light;
+        svg {
+            fill: currentColor;
+        }
+    }
     .icon {
+        @include svg-size(1.2rem);
+        display: inline-block;
         margin-right: .25rem;
+        padding: 0;
     }
     a {
-        padding: 1rem;
+        align-items: center;
+        cursor: pointer;
+        display: flex;
+        padding: .8rem 1.2rem;
     }
 }
 
 .card-title {
-    color: $grayer;
-    font-size: 16px;
-    font-weight: normal;
+    @include font-size(normal);
     line-height: 1.25;
-    margin: .75rem 0 .25rem;
-    padding: 0 1rem;
+    margin-bottom: .25rem;
+    padding: 1rem 1rem 0;
+    span {
+        padding-right: .25rem;
+    }
 }
 
 .card-data {
@@ -77,26 +88,34 @@
     display: flex;
     font-size: 14px;
     justify-content: space-between;
-    margin-bottom: 1rem;
     padding: 0 1rem;
 }
 
 .card-statistics {
+    @include font-size(small);
     display: flex;
+    margin-left: auto;
     .statistic {
-        margin-left: .5rem;
+        align-content: center;
+        display: flex;
+        margin-left: .75rem;
         &.active {
-            color: darken($primary-light, 5%);
+            color: $primary-light;
+            svg {
+                fill: currentColor;
+            }
         }
     }
     .icon {
+        @include svg-size(.75rem);
+        fill: $gray-light;
         margin-right: .2rem;
     }
 }
 
 .card-completion {
     height: 1rem;
-    margin: 0 1rem;
+    margin: 1rem;
     position: relative;
     .card-completion-bar {
         background: $whitish;
@@ -143,15 +162,18 @@
 }
 
 .card-unfold {
-    color: $gray-light;
+    align-items: center;
     cursor: pointer;
-    font-size: 21px;
+    display: flex;
+    justify-content: center;
     margin: 0;
-    text-align: center;
-    transition: all .2s ease-in;
+    padding: .25rem;
     &:hover {
-        background: linear-gradient($white, $whitish);
-        color: darken($gray-light, 10%);
+        background: linear-gradient(to bottom, $white, darken($white, 1%));
+    }
+    svg {
+        @include svg-size($width: 2rem, $height: .3rem);
+        fill: $whitish;
     }
 }
 

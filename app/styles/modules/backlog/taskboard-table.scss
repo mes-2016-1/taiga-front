@@ -167,6 +167,7 @@ $column-margin: 0 10px 0 0;
             .points-value,
             .points-value:hover {
                 color: $white;
+                fill: $white;
                 transition: color .3s linear;
             }
             .taskboard-tasks-box {
@@ -185,18 +186,26 @@ $column-margin: 0 10px 0 0;
             }
         }
     }
-
     .taskboard-userstory-box {
         padding: .5rem .5rem .5rem 1.5rem;
     }
-    .avatar-task-link {
-        display: none;
+
+}
+
+.taskboard-userstory-box {
+    position: relative;
+    .us-title {
+        @include font-size(normal);
+        @include font-type(text);
+        margin-bottom: 0;
+        margin-right: 3rem;
     }
-    .avatar-assigned-to {
-        display: block;
-    }
-    .icon {
-        transition: fill .2s linear;
+    .points-value {
+        @include font-size(small);
+        color: $gray-light;
+        span {
+            margin-right: .1rem;
+        }
     }
     tg-svg {
         cursor: pointer;
@@ -216,23 +225,6 @@ $column-margin: 0 10px 0 0;
             left: 0;
             right: inherit;
             top: 1rem;
-        }
-    }
-}
-
-.taskboard-userstory-box {
-    position: relative;
-    .us-title {
-        @include font-size(normal);
-        @include font-type(text);
-        margin-bottom: 0;
-        margin-right: 3rem;
-    }
-    .points-value {
-        @include font-size(small);
-        color: $gray-light;
-        span {
-            margin-right: .1rem;
         }
     }
 }

@@ -126,6 +126,7 @@ class TaskboardTasksService extends taiga.Service
             for status in taskStatusList
                 usTasks[us.id][status.id] = []
 
+        console.log tasks
         for taskModel in tasks
             if usTasks[taskModel.user_story]? and usTasks[taskModel.user_story][taskModel.status]?
                 task = {}
@@ -137,9 +138,7 @@ class TaskboardTasksService extends taiga.Service
                     return {name: tag, color: color}
 
                 usTasks[taskModel.user_story][taskModel.status].push(task)
-
         console.log usTasks
-
         @.usTasks = Immutable.fromJS(usTasks)
 
 angular.module("taigaKanban").service("tgTaskboardTasks", TaskboardTasksService)
