@@ -20,7 +20,7 @@
                 tg-nav-get-params="{\"kanban-status\": {{vm.item.getIn(['model', 'status'])}}}"
                 title="#{{ ::vm.item.getIn(['model', 'ref']) }} {{ vm.item.getIn(['model', 'subject'])}}"
             ) 
-                span(ng-if="vm.zoom == 0") {{::"#" + vm.item.getIn(['model', 'ref'])}}
+                span(ng-if="vm.zoom < 2") {{::"#" + vm.item.getIn(['model', 'ref'])}}
                 span.e2e-title(ng-if="vm.zoom == 1") {{vm.item.getIn(['model', 'subject'])}}
 
         .card-owner-info(ng-if="vm.zoom >= 0 && !vm.item.get('assigned_to')")
@@ -36,7 +36,7 @@
                 tg-nav-get-params="{\"kanban-status\": {{vm.item.getIn(['model', 'status'])}}}"
                 title="#{{ ::vm.item.getIn(['model', 'ref']) }} {{ vm.item.getIn(['model', 'subject'])}}"
             ) 
-                span(ng-if="vm.zoom == 0") {{::"#" + vm.item.getIn(['model', 'ref'])}}
+                span(ng-if="vm.zoom < 2") {{::"#" + vm.item.getIn(['model', 'ref'])}}
                 span.e2e-title(ng-if="vm.zoom == 1") {{vm.item.getIn(['model', 'subject'])}}
 
         .card-owner-actions(
