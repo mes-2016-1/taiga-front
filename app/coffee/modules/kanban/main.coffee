@@ -72,9 +72,16 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
     constructor: (@scope, @rootscope, @repo, @confirm, @rs, @rs2, @params, @q, @location,
                   @appMetaService, @navUrls, @events, @analytics, @translate, @errorHandlingService,
                   @model, @kanbanUserstoriesService, @storage) ->
-
         bindMethods(@)
         @.zoom = @storage.get("kanban_zoom") or 0
+
+        if _.isEmpty(@location.search())
+            filters = @rs.userstories.getFilters(@params.pslug, "kanban-filters")
+            if Object.keys(filters).length
+                @location.search(filters)
+                @location.replace()
+
+                return
 
         @scope.sectionName = @translate.instant("KANBAN.SECTION_NAME")
         @scope.statusViewModes = {}
@@ -97,6 +104,9 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
         taiga.defineImmutableProperty @.scope, "usByStatus", () =>
             return @kanbanUserstoriesService.usByStatus
 
+    storeFilters: ->
+        @rs.userstories.storeFilters(@params.pslug, @location.search(), "kanban-filters")
+
     changeQ: (q) ->
         @.replaceFilter("q", q)
         @.loadUserstories()
@@ -118,7 +128,7 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
         @rs.userstories.getMyFilters(@scope.projectId, 'kanban-filters').then (userFilters) =>
             userFilters[name] = filters
 
-            @rs.userstories.storeMyFilters(@scope.projectId, userFilters)
+            @rs.userstories.storeFilters(@scope.projectId, userFilters)
 
     formatSelectedFilters: (type, list, urlIds) ->
         selectedIds = urlIds.split(',')
@@ -137,6 +147,8 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
     generateFilters: ->
         #TODO: on demand¿?
 
+        @.storeFilters()
+
         urlfilters = @location.search()
 
         loadFilters = {}
@@ -144,7 +156,7 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
         loadFilters.tags = urlfilters.tags
         loadFilters.status = urlfilters.status
         loadFilters.assigned_to = urlfilters.assigned_to
-        loadFilters.created_by = urlfilters.created_by
+        loadFilters.owner = urlfilters.owner
         loadFilters.q = urlfilters.q
 
         return @rs.userstories.filtersData(loadFilters).then (data) =>
@@ -167,7 +179,7 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
                 it.name = it.full_name || "Unassigned"
 
                 return it
-            createdBy = _.map data.owners, (it) ->
+            owner = _.map data.owners, (it) ->
                 it.id = it.id.toString()
                 it.name = it.full_name
 
@@ -185,8 +197,8 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
                 selected = @.formatSelectedFilters("assigned_to", assignedTo, loadFilters.assigned_to)
                 @.selectedFilters = @.selectedFilters.concat(selected)
 
-            if loadFilters.created_by
-                selected = @.formatSelectedFilters("created_by", createdBy, loadFilters.created_by)
+            if loadFilters.owner
+                selected = @.formatSelectedFilters("owner", owner, loadFilters.owner)
                 @.selectedFilters = @.selectedFilters.concat(selected)
 
             @.q = loadFilters.q
@@ -208,8 +220,8 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
                 },
                 {
                     title: @translate.instant("ISSUES.FILTERS.CATEGORIES.CREATED_BY"),
-                    dataType: "created_by",
-                    content: createdBy
+                    dataType: "owner",
+                    content: owner
                 }
             ];
 
