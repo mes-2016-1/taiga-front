@@ -97,22 +97,21 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
         taiga.defineImmutableProperty @.scope, "usByStatus", () =>
             return @kanbanUserstoriesService.usByStatus
 
-    formatFilters: (filters) ->
-        filters = _.groupBy filters, (it) -> it.category.dataType
+    changeQ: (q) ->
+        @.replaceFilter("q", q)
+        @.loadUserstories()
+        @.generateFilters()
 
-        filters = _.forOwn filters, (filterCategory, key) ->
-            filter = _.map filterCategory, (it) ->
-                return it.filter.id || it.filter.name
+    removeFilter: (filter) ->
+        @.unselectFilter(filter.dataType, filter.id)
+        @.loadUserstories()
+        @.generateFilters()
 
-            filters[key] = filter.join(',')
-
-        return filters
-
-    changeFilter: (filters) ->
-        filters = @.formatFilters(filters)
-
-        @.replaceAllFilters(filters)
-
+    addFilter: (newFilter) ->
+        @.selectFilter(newFilter.category.dataType, newFilter.filter.id)
+        @.loadUserstories()
+        @.generateFilters()
+    #TODO
     saveCustomFilter: (name, filters) ->
         filters = @.formatFilters(filters)
 
@@ -121,52 +120,102 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
 
             @rs.userstories.storeMyFilters(@scope.projectId, userFilters)
 
+    formatSelectedFilters: (type, list, urlIds) ->
+        selectedIds = urlIds.split(',')
+        selectedFilters = _.filter list, (it) ->
+            selectedIds.indexOf(_.toString(it.id)) != -1
+
+        return _.map selectedFilters, (it) ->
+            return {
+                id: it.id
+                key: type + ":" + it.id
+                dataType: type,
+                name: it.name
+                color: it.color
+            }
+
     generateFilters: ->
         #TODO: on demand¿?
 
-        # urlfilters = @.getUrlFilters()
-        @scope.filters =  {}
+        urlfilters = @location.search()
 
         loadFilters = {}
         loadFilters.project = @scope.projectId
-        # loadFilters.tags = urlfilters.tags
-        # loadFilters.status = urlfilters.status
-        # loadFilters.q = urlfilters.q
-        loadFilters.milestone = 'null'
+        loadFilters.tags = urlfilters.tags
+        loadFilters.status = urlfilters.status
+        loadFilters.assigned_to = urlfilters.assigned_to
+        loadFilters.created_by = urlfilters.created_by
+        loadFilters.q = urlfilters.q
 
         return @rs.userstories.filtersData(loadFilters).then (data) =>
-            console.log data
+            @.selectedFilters = []
 
+            statuses = _.map data.statuses, (it) ->
+                it.id = it.id.toString()
+
+                return it
+            tags = _.map data.tags, (it) ->
+                it.id = it.name
+
+                return it
+            assignedTo = _.map data.assigned_to, (it) ->
+                if it.id
+                    it.id = it.id.toString()
+                else
+                    it.id = "null"
+
+                it.name = it.full_name || "Unassigned"
+
+                return it
+            createdBy = _.map data.owners, (it) ->
+                it.id = it.id.toString()
+                it.name = it.full_name
+
+                return it
+
+            if loadFilters.status
+                selected = @.formatSelectedFilters("status", statuses, loadFilters.status)
+                @.selectedFilters = @.selectedFilters.concat(selected)
+
+            if loadFilters.tags
+                selected = @.formatSelectedFilters("tags", tags, loadFilters.tags)
+                @.selectedFilters = @.selectedFilters.concat(selected)
+
+            if loadFilters.assigned_to
+                selected = @.formatSelectedFilters("assigned_to", assignedTo, loadFilters.assigned_to)
+                @.selectedFilters = @.selectedFilters.concat(selected)
+
+            if loadFilters.created_by
+                selected = @.formatSelectedFilters("created_by", createdBy, loadFilters.created_by)
+                @.selectedFilters = @.selectedFilters.concat(selected)
+
+            @.q = loadFilters.q
             @.filters = [
                 {
                     title: @translate.instant("ISSUES.FILTERS.CATEGORIES.STATUS"),
                     dataType: "status",
-                    content: data.statuses
+                    content: statuses
                 },
                 {
                     title: @translate.instant("ISSUES.FILTERS.CATEGORIES.TAGS"),
                     dataType: "tags",
-                    content: data.tags
+                    content: tags
                 },
                 {
                     title: @translate.instant("ISSUES.FILTERS.CATEGORIES.ASSIGNED_TO"),
-                    dataType: "assignedTo",
-                    content: _.map data.assigned_to, (it) ->
-                        it.name = it.full_name || "Unassigned"
-
-                        return it
+                    dataType: "assigned_to",
+                    content: assignedTo
                 },
                 {
                     title: @translate.instant("ISSUES.FILTERS.CATEGORIES.CREATED_BY"),
-                    dataType: "createdBy",
-                    content: _.map data.owners, (it) ->
-                        it.name = it.full_name
-
-                        return it
+                    dataType: "created_by",
+                    content: createdBy
                 }
             ];
 
-
+            console.log "----------"
+            console.log @.filters
+            console.log @.selectedFilters
 
             # # Build filters data structure
             # @scope.filters.status = choicesFiltersFormat(data.statuses, "status", @scope.usStatusById)
@@ -264,6 +313,8 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
             include_attachments: true,
             include_tasks: true
         }
+
+        params = _.merge params, @location.search()
 
         promise = @rs.userstories.listAll(@scope.projectId, params).then (userstories) =>
             @kanbanUserstoriesService.init(@scope.project, @scope.usersById)

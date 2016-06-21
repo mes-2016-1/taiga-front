@@ -22,10 +22,14 @@ FilterDirective = () ->
 
     return {
         scope: {
-            onChangeFilter: "&",
+            onChangeQ: "&",
+            onAddFilter: "&",
+            onRemoveFilter: "&",
             onSaveCustomFilter: "&",
             customFilters: "<",
+            q: "<",
             filters: "<"
+            selectedFilters: "<"
         },
         bindToController: true,
         controller: "Filter",

@@ -22,7 +22,6 @@ class FilterController
 
     constructor: () ->
         @.opened = null
-        @.filtersSelected = []
         @.customFilterForm = false
         @.customFilterName = ''
 
@@ -38,23 +37,22 @@ class FilterController
     saveCustomFilter: () ->
         @.onSaveCustomFilter({name: @.customFilterName, filters: @.filtersSelected})
 
-    unselectFilter: (appliedFilter) ->
-        _.remove @.filtersSelected, (it) ->
-            return appliedFilter.category.dataType == it.category.dataType &&
-              appliedFilter.filter.name == it.filter.name
+    changeQ: () ->
+        @.onChangeQ({q: @.q})
 
-        @.onChangeFilter({filters: @.filtersSelected})
+    unselectFilter: (filter) ->
+        @.onRemoveFilter({filter: filter})
 
     selectFilter: (filterCategory, filter) ->
-        @.filtersSelected.push({
+        filter = {
             category: filterCategory
             filter: filter
-        })
+        }
 
-        @.onChangeFilter({filters: @.filtersSelected})
+        @.onAddFilter({filter: filter})
 
     isFilterSelected: (filterCategory, filter) ->
-        return  !!_.find @.filtersSelected, (it) ->
-            return filterCategory.dataType == it.category.dataType && filter.name == it.filter.name
+        return !!_.find @.selectedFilters, (it) ->
+            return filter.id == it.id && filterCategory.dataType == it.dataType
 
 angular.module('taigaComponents').controller('Filter', FilterController)

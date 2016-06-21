@@ -7,10 +7,14 @@ div.wrapper(tg-kanban, ng-controller="KanbanController as ctrl"
     section.main.kanban
         include ../includes/components/mainTitle
         tg-filter(
+          q="ctrl.q"
           filters="ctrl.filters"
+          selected-filters="ctrl.selectedFilters"
           customFilters="ctl.customFilters"
           on-save-custom-filter="ctrl.saveCustomFilter(name, filters)"
-          on-change-filter="ctrl.changeFilter(filters)"
+          on-add-filter="ctrl.addFilter(filter)"
+          on-remove-filter="ctrl.removeFilter(filter)"
+          on-change-q="ctrl.changeQ(q)"
         )
         tg-board-zoom(
             value="ctrl.zoom",

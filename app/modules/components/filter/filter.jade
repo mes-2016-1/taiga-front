@@ -6,7 +6,9 @@ form.surround
         input(
             type="text",
             placeholder="{{'ISSUES.FILTERS.INPUT_SEARCH_PLACEHOLDER' | translate}}",
-            ng-model="filtersQ"
+            ng-model="vm.q"
+            ng-model-options="{ debounce: 200 }"
+            ng-change="vm.changeQ()"
         )
         tg-svg.search-action(
             svg-icon="icon-search",
@@ -15,21 +17,21 @@ form.surround
 
 .filters-step-cat
     .filters-applied.surround
-        .single-filter.ng-animate-disabled(ng-repeat="it in vm.filtersSelected")
-            span.name(ng-attr-style="{{it.filter.color ? 'border-left: 3px solid ' + it.filter.color: ''}}") {{it.filter.name}}
+        .single-filter.ng-animate-disabled(ng-repeat="it in vm.selectedFilters track by it.key")
+            span.name(ng-attr-style="{{it.color ? 'border-left: 3px solid ' + it.color: ''}}") {{it.name}}
             a.remove-filter(
                ng-click="vm.unselectFilter(it)"
                href=""
            )
                 tg-svg(svg-icon="icon-close")
 
-        a.button.button-gray.save-filters.ng-animate-disabled(
-            ng-click="vm.customFilterForm = true"
-            ng-if="vm.filtersSelected.length && !vm.customFilterForm"
-            href="",
-            title="{{'COMMON.SAVE' | translate}}",
-            translate="ISSUES.FILTERS.ACTION_SAVE_CUSTOM_FILTER"
-        )
+        //- a.button.button-gray.save-filters.ng-animate-disabled(
+        //-     ng-click="vm.customFilterForm = true"
+        //-     ng-if="vm.filtersSelected().length && !vm.customFilterForm"
+        //-     href="",
+        //-     title="{{'COMMON.SAVE' | translate}}",
+        //-     translate="ISSUES.FILTERS.ACTION_SAVE_CUSTOM_FILTER"
+        //- )
 
         form(
             ng-if="vm.customFilterForm"
@@ -45,7 +47,7 @@ form.surround
         ul
             li(
                 ng-class="{selected: vm.isOpen(filter.dataType)}"
-                ng-repeat="filter in ::vm.filters track by filter.dataType"
+                ng-repeat="filter in vm.filters track by filter.dataType"
             )
                 a.filters-cat-single(
                     ng-class="{selected: vm.isOpen(filter.dataType)}"
@@ -73,7 +75,7 @@ form.surround
                         ng-click="vm.selectFilter(filter, it)"
                     )
                         span.name(ng-attr-style="{{it.color ? 'border-left: 3px solid ' + it.color: ''}}") {{it.name}}
-                        span.number {{it.count}}
+                        span.number(ng-if="it.count > 0") {{it.count}}
 
             li.custom-filters(ng-class="{selected: vm.isOpen('custom-filter')}")
                 a.filters-cat-single(
