@@ -24,6 +24,30 @@
             padding: .25rem;
         }
     }
+    &.card-blocked {
+        background: $red-light;
+        .statistic,
+        .card-title a,
+        .card-owner-name {
+            color: $white;
+        }
+        .card-owner-actions {
+            background: rgba($red-light, .9);
+        }
+        svg {
+            fill: $white;
+        }
+        .statistic {
+            &.active {
+                color: $white;
+            }
+        }
+        .card-unfold {
+            &:hover {
+                background: rgba($red-light, .9);
+            }
+        }
+    }
 }
 
 .card-tags {
@@ -41,6 +65,22 @@
     .card-owner-info {
         align-items: center;
         display: flex;
+    }
+    .card-owner-avatar {
+        position: relative;
+    }
+    .icon-iocaine {
+        @include svg-size(1.2rem);
+        background: rgba($blackish, .8);
+        border-radius: 4px 0 0;
+        bottom: .25rem;
+        fill: $whitish;
+        padding: .25rem;
+        position: absolute;
+        right: .5rem;
+    }
+    .is-iocaine {
+        filter: hue-rotate(265deg) saturate(3);
     }
     &:hover {
         .card-owner-actions {

@@ -1,112 +1,14 @@
 .card-inner(
-    ng-class="{'blocked': vm.item.getIn(['model', 'is_blocked']), 'archived': vm.archived, 'zoom-0': vm.zoom == 0, 'zoom-1': vm.zoom == 1, 'zoom-2': vm.zoom == 2, 'zoom-3': vm.zoom == 3, 'zoom-4': vm.zoom == 4}"
+    ng-class="{'card-blocked': vm.item.getIn(['model', 'is_blocked']), 'archived': vm.archived, 'zoom-0': vm.zoom == 0, 'zoom-1': vm.zoom == 1, 'zoom-2': vm.zoom == 2, 'zoom-3': vm.zoom == 3, 'zoom-4': vm.zoom == 4}"
 )
-    .card-tags
-        span.card-tag(
-            tg-repeat="tag in vm.item.get('colorized_tags') track by tag.get('name')"
-            style="background-color: {{tag.get('color')}}" 
-            title="{{tag.get('name')}}"
-            ng-if="tag.get('color')"
-        )
-
-    .card-owner
-        .card-owner-info(ng-if="vm.zoom >= 0 && vm.item.get('assigned_to')")
-            img(ng-src="{{vm.item.getIn(['assigned_to', 'photo'])}}")
-            span.card-owner-name(ng-if="vm.zoom >= 2") {{vm.item.getIn(['assigned_to', 'full_name'])}}
-            a.card-title(
-                ng-if="vm.zoom < 2"
-                href=""
-                tg-nav="{{vm.getNavKey()}}:project=vm.project.slug,ref=vm.item.getIn(['model', 'ref'])",
-                tg-nav-get-params="{\"kanban-status\": {{vm.item.getIn(['model', 'status'])}}}"
-                title="#{{ ::vm.item.getIn(['model', 'ref']) }} {{ vm.item.getIn(['model', 'subject'])}}"
-            ) 
-                span(ng-if="vm.zoom < 2") {{::"#" + vm.item.getIn(['model', 'ref'])}}
-                span.e2e-title(ng-if="vm.zoom == 1") {{vm.item.getIn(['model', 'subject'])}}
-
-        .card-owner-info(ng-if="vm.zoom >= 0 && !vm.item.get('assigned_to')")
-            img(ng-src="/#{v}/images/unnamed.png")
-            span.card-owner-name(
-                ng-if="vm.zoom >= 2",
-                translate="COMMON.ASSIGNED_TO.NOT_ASSIGNED"
-            )
-            a.card-title(
-                ng-if="vm.zoom < 2"
-                href=""
-                tg-nav="{{vm.getNavKey()}}:project=vm.project.slug,ref=vm.item.getIn(['model', 'ref'])",
-                tg-nav-get-params="{\"kanban-status\": {{vm.item.getIn(['model', 'status'])}}}"
-                title="#{{ ::vm.item.getIn(['model', 'ref']) }} {{ vm.item.getIn(['model', 'subject'])}}"
-            ) 
-                span(ng-if="vm.zoom < 2") {{::"#" + vm.item.getIn(['model', 'ref'])}}
-                span.e2e-title(ng-if="vm.zoom == 1") {{vm.item.getIn(['model', 'subject'])}}
-
-        .card-owner-actions(
-            ng-if="vm.zoom >= 2"
-            tg-check-permission="{{vm.getPermissionsKey()}}"
-        )
-            a.e2e-assign.card-owner-assign(
-                ng-click="vm.onClickAssignedTo({id: vm.item.get('id')})"
-                href=""
-              )
-                //todo icon
-                tg-svg(svg-icon="icon-add-user")
-                span(translate="COMMON.CARD.ASSIGN_TO")
-
-            a.e2e-edit.card-edit(
-                href=""
-                ng-click="vm.onClickEdit({id: vm.item.get('id')})"
-                tg-loading="vm.item.get('loading')"
-            )
-                //todo icon
-                tg-svg(svg-icon="icon-edit")
-                span(translate="COMMON.CARD.EDIT")
-
-    h2.card-title(ng-if="vm.zoom >= 2")
-        a(
-            href=""
-            tg-nav="{{vm.getNavKey()}}:project=vm.project.slug,ref=vm.item.getIn(['model', 'ref'])",
-            tg-nav-get-params="{\"kanban-status\": {{vm.item.getIn(['model', 'status'])}}}"
-            title="#{{ ::vm.item.getIn(['model', 'ref']) }} {{ vm.item.getIn(['model', 'subject'])}}"
-        ) 
-            span {{::"#" + vm.item.getIn(['model', 'ref'])}}
-            span.e2e-title {{vm.item.getIn(['model', 'subject'])}}
-
-    .card-data(ng-if="vm.zoom >= 2")
-        span.card-estimation(
-            ng-if="vm.item.getIn(['model', 'total_points']) === null",
-            translate="US.NOT_ESTIMATED"
-        )
-        span.card-estimation(
-            ng-if="vm.item.getIn(['model', 'total_points'])"
-        ) {{"COMMON.FIELDS.POINTS" | translate}} {{vm.item.getIn(['model', 'total_points'])}}
-        .card-statistics
-            .statistic.card-votes
-                tg-svg(svg-icon="icon-upvote")
-                span 4
-            .statistic.card-watchers.active
-                tg-svg(svg-icon="icon-watch")
-                span 4
-
-    .card-completion(ng-if="vm.zoom >= 2 && vm.item.getIn(['model', 'tasks']).size")
-        .card-completion-bar
-        .card-completion-percentage(ng-style="{width: vm.closedTasksPercent() + '%'}" )
-        span.card-tooltip tasks {{vm.getClosedTasks().size}}/{{vm.item.getIn(['model', 'tasks']).size}}
-
-    ul.card-tasks(ng-if="vm.zoom >= 4 && vm.item.getIn(['model', 'tasks']).size")
-        li.card-task(tg-repeat="task in vm.item.getIn(['model', 'tasks'])")
-            a(
-                href="#"
-                tg-nav="project-tasks-detail:project=vm.project.slug,ref=task.get('ref')",
-                ng-class="{'closed-task': task.get('is_closed'), 'blocked-task': task.get('is_blocked')}"
-            ) {{"#" + task.get('ref')}} {{task.get('subject')}}
-
+    include card-templates/card-tags
+    include card-templates/card-owner
+    include card-templates/card-title
+    include card-templates/card-data
+    include card-templates/card-completion
+    include card-templates/card-tasks
     tg-card-slideshow(
         ng-if="vm.zoom >= 3 && !vm.item.getIn(['model', 'attachments'])"
         attachments="vm.item.getIn(['model', 'attachments'])"
     )
-
-    .card-unfold.ng-animate-disabled(
-        ng-if="vm.zoom >= 3",
-        role="button"
-    )
-        //todo icon
-        tg-svg(svg-icon="icon-view-more")
+    include card-templates/card-unfold
