@@ -1,6 +1,4 @@
 .card {
-    background: $white;
-    border-radius: .25rem;
     box-shadow: 2px 2px 4px darken($whitish, 10%);
     cursor: move;
     display: block;
@@ -13,6 +11,8 @@
 }
 
 .card-inner {
+    background: $white;
+    border-radius: .25rem;
     &.zoom-2 {
         padding-bottom: .5rem;
     }
@@ -45,6 +45,12 @@
         .card-unfold {
             &:hover {
                 background: rgba($red-light, .9);
+            }
+        }
+        &.zoom-0,
+        &.zoom-1 {
+            .card-title {
+                color: $white;
             }
         }
     }

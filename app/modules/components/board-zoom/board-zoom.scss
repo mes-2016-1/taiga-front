@@ -3,13 +3,13 @@ $thumb-color: $grayer;
 $thumb-shadow: rgba($thumb-color, .3);
 
 $thumb-radius: 50%;
-$thumb-height: 15px;
-$thumb-width: 15px;
+$thumb-height: 14px;
+$thumb-width: 14px;
 $thumb-border-width: 0;
 $thumb-border-color: transparent;
 
-$track-width: 250px;
-$track-height: 2px;
+$track-width: 200px;
+$track-height: 3px;
 $track-border-width: 0;
 $track-border-color: transparent;
 
@@ -30,7 +30,7 @@ $contrast: 2;
     border-radius: $thumb-radius;
     background: $thumb-color;
     cursor: pointer;
-    box-shadow: 0 0 0 3px $thumb-shadow;
+    box-shadow: 0 0 0 2px $thumb-shadow;
     transition: box-shadow .2s;
 }
 

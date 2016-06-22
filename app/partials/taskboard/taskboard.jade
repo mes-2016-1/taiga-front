@@ -4,21 +4,25 @@ div.wrapper(tg-taskboard, ng-controller="TaskboardController as ctrl",
             ng-init="section='backlog'")
     tg-project-menu
     section.main.taskboard
-        .taskboard-inner
+        .taskboard-header
             h1
                 span(tg-bo-bind="project.name", class="project-name-short")
                 span.green(tg-bo-bind="sprint.name")
                 span.date(tg-date-range="sprint.estimated_start,sprint.estimated_finish")
+            .taskboard-actions
+                tg-board-zoom.board-zoom(
+                    value="ctrl.zoom"
+                    storage="taskboard_zoom"
+                )
+                button.button-filter
+                    tg-svg(svg-icon="icon-filters")
+        .taskboard-inner
+            
             include ../includes/components/sprint-summary
 
             div.graphics-container
                 div.burndown(tg-sprint-graph)
                     include ../includes/modules/burndown
-
-            tg-board-zoom(
-                value="ctrl.zoom"
-                storage="taskboard_zoom"
-            )
 
             include ../includes/modules/taskboard-table
 
