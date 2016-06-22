@@ -74,6 +74,7 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
                   @model, @kanbanUserstoriesService, @storage) ->
         bindMethods(@)
         @.zoom = @storage.get("kanban_zoom") or 0
+        @.openFilter = false
 
         if _.isEmpty(@location.search())
             filters = @rs.userstories.getFilters(@params.pslug, "kanban-filters")

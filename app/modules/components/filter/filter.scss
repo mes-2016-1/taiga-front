@@ -22,6 +22,20 @@ tg-filter {
         right: .7rem;
         top: .7rem;
     }
+    &.ng-hide-add {
+        transform: translateX(0);
+        transition-duration: .5s;
+    }
+    &.ng-hide-add-active {
+        transform: translateX(-260px);
+    }
+    &.ng-hide-remove {
+        transform: translateX(-260px);
+        transition-duration: .5s;
+    }
+    &.ng-hide-remove-active {
+        transform: translateX(0);
+    }
 }
 
 .filter-list {

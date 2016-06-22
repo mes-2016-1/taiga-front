@@ -7,6 +7,7 @@ div.wrapper(tg-kanban, ng-controller="KanbanController as ctrl"
     section.main.kanban
         include ../includes/components/mainTitle
         tg-filter(
+          ng-show="ctrl.openFilter"
           q="ctrl.filterQ"
           filters="ctrl.filters"
           custom-filters="ctrl.customFilters"
@@ -18,10 +19,13 @@ div.wrapper(tg-kanban, ng-controller="KanbanController as ctrl"
           on-remove-filter="ctrl.removeFilter(filter)"
           on-change-q="ctrl.changeQ(q)"
         )
-        tg-board-zoom(
-            value="ctrl.zoom",
+        tg-board-zoom.board-zoom(
+            value="ctrl.zoom"
             storage="kanban_zoom"
         )
+        button.button-filter(ng-click="ctrl.openFilter = !ctrl.openFilter")
+            tg-svg(svg-icon="icon-filters")
+
         include ../includes/modules/kanban-table
 
     div.lightbox.lightbox-generic-form.lb-create-edit-userstory(tg-lb-create-edit-userstory)
