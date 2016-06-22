@@ -35,7 +35,10 @@ class FilterController
         return @.opened == filterName
 
     saveCustomFilter: () ->
-        @.onSaveCustomFilter({name: @.customFilterName, filters: @.filtersSelected})
+        @.onSaveCustomFilter({name: @.customFilterName})
+        @.customFilterForm = false
+        @.opened = 'custom-filter'
+        @.customFilterName = ''
 
     changeQ: () ->
         @.onChangeQ({q: @.q})
@@ -50,6 +53,9 @@ class FilterController
         }
 
         @.onAddFilter({filter: filter})
+
+    selectCustomFilter: (filter) ->
+        @.onSelectCustomFilter({filter: filter})
 
     isFilterSelected: (filterCategory, filter) ->
         return !!_.find @.selectedFilters, (it) ->

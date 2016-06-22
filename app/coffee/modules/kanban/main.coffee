@@ -121,14 +121,24 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
         @.selectFilter(newFilter.category.dataType, newFilter.filter.id)
         @.loadUserstories()
         @.generateFilters()
-    #TODO
-    saveCustomFilter: (name, filters) ->
-        filters = @.formatFilters(filters)
 
-        @rs.userstories.getMyFilters(@scope.projectId, 'kanban-filters').then (userFilters) =>
+    selectCustomFilter: (customFilter) ->
+        @.replaceAllFilters(customFilter.filter)
+        @.loadUserstories()
+        @.generateFilters()
+
+    saveCustomFilter: (name) ->
+        filters = {}
+        urlfilters = @location.search()
+        filters.tags = urlfilters.tags
+        filters.status = urlfilters.status
+        filters.assigned_to = urlfilters.assigned_to
+        filters.owner = urlfilters.owner
+
+        @rs.userstories.getFiltersRemote(@scope.projectId, 'kanban-custom-filters').then (userFilters) =>
             userFilters[name] = filters
 
-            @rs.userstories.storeFilters(@scope.projectId, userFilters)
+            @rs.userstories.storeFiltersRemote(@scope.projectId, userFilters, 'kanban-custom-filters').then(@.generateFilters)
 
     formatSelectedFilters: (type, list, urlIds) ->
         selectedIds = urlIds.split(',')
@@ -159,8 +169,12 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
         loadFilters.owner = urlfilters.owner
         loadFilters.q = urlfilters.q
 
-        return @rs.userstories.filtersData(loadFilters).then (data) =>
-            @.selectedFilters = []
+        return @q.all([
+            @rs.userstories.filtersData(loadFilters),
+            @rs.userstories.getFiltersRemote(@scope.projectId, 'kanban-custom-filters')
+        ]).then (result) =>
+            data = result[0]
+            customFiltersRaw = result[1]
 
             statuses = _.map data.statuses, (it) ->
                 it.id = it.id.toString()
@@ -185,6 +199,8 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
 
                 return it
 
+            @.selectedFilters = []
+
             if loadFilters.status
                 selected = @.formatSelectedFilters("status", statuses, loadFilters.status)
                 @.selectedFilters = @.selectedFilters.concat(selected)
@@ -201,7 +217,8 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
                 selected = @.formatSelectedFilters("owner", owner, loadFilters.owner)
                 @.selectedFilters = @.selectedFilters.concat(selected)
 
-            @.q = loadFilters.q
+            @.filterQ = loadFilters.q
+
             @.filters = [
                 {
                     title: @translate.instant("ISSUES.FILTERS.CATEGORIES.STATUS"),
@@ -225,29 +242,14 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
                 }
             ];
 
+            @.customFilters = []
+            _.forOwn customFiltersRaw, (value, key) =>
+                @.customFilters.push({id: key, name: key, filter: value})
+
             console.log "----------"
-            console.log @.filters
-            console.log @.selectedFilters
-
-            # # Build filters data structure
-            # @scope.filters.status = choicesFiltersFormat(data.statuses, "status", @scope.usStatusById)
-            # @scope.filters.tags = tagsFilterFormat(data.tags)
-
-            # selectedTags = _.filter(@scope.filters.tags, "selected")
-            # selectedTags = _.map(selectedTags, "id")
-
-            # selectedStatuses = _.filter(@scope.filters.status, "selected")
-            # selectedStatuses = _.map(selectedStatuses, "id")
-
-            # @.markSelectedFilters(@scope.filters, urlfilters)
-
-            #store query params
-            # @rs.userstories.storeQueryParams(@scope.projectId, {
-            #     "status": selectedStatuses,
-            #     "tags": selectedTags,
-            #     "project": @scope.projectId
-            #     "milestone": null
-            # })
+            console.log "filters", @.filters
+            console.log "selected", @.selectedFilters
+            console.log "custom", customFiltersRaw
 
     initializeEventHandlers: ->
         @scope.$on "usform:new:success", (event, us) =>

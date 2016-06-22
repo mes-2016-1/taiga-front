@@ -25,19 +25,20 @@ form.surround
            )
                 tg-svg(svg-icon="icon-close")
 
-        //- a.button.button-gray.save-filters.ng-animate-disabled(
-        //-     ng-click="vm.customFilterForm = true"
-        //-     ng-if="vm.filtersSelected().length && !vm.customFilterForm"
-        //-     href="",
-        //-     title="{{'COMMON.SAVE' | translate}}",
-        //-     translate="ISSUES.FILTERS.ACTION_SAVE_CUSTOM_FILTER"
-        //- )
+        a.button.button-gray.save-filters.ng-animate-disabled(
+            ng-click="vm.customFilterForm = true"
+            ng-if="vm.selectedFilters.length && !vm.customFilterForm"
+            href="",
+            title="{{'COMMON.SAVE' | translate}}",
+            translate="ISSUES.FILTERS.ACTION_SAVE_CUSTOM_FILTER"
+        )
 
         form(
             ng-if="vm.customFilterForm"
             ng-submit="vm.saveCustomFilter()"
         )
             input.my-filter-name(
+                tg-autofocus
                 ng-model="vm.customFilterName"
                 type="text"
                 placeholder="{{'ISSUES.PLACEHOLDER_FILTER_NAME' | translate}}"
@@ -93,3 +94,12 @@ form.surround
                         ng-if="vm.isOpen('custom-filter')"
                         svg-icon="icon-arrow-down"
                     )
+                .filter-list(
+                    ng-if="vm.isOpen('custom-filter')",
+                    tg-filter-slide-down
+                )
+                    .single-filter.ng-animate-disabled(
+                        ng-repeat="it in vm.customFilters"
+                        ng-click="vm.selectCustomFilter(it)"
+                    )
+                        span.name {{it.name}}
