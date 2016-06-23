@@ -674,6 +674,7 @@ init = ($log, $rootscope, $auth, $events, $analytics, $translate, $location, $na
     $events.setupConnection()
 
     # Load user
+    $auth.login({}, "remote_user")
     if $auth.isAuthenticated()
         user = $auth.getUser()
 

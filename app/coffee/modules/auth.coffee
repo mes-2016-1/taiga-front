@@ -163,10 +163,11 @@ class AuthService extends taiga.Service
         @.removeToken()
 
         return @http.post(url, data).then (data, status) =>
-            user = @model.make_model("users", data.data)
-            @.setToken(user.auth_token)
-            @.setUser(user)
-            return user
+            if (!!data.data)
+                user = @model.make_model("users", data.data)
+                @.setToken(user.auth_token)
+                @.setUser(user)
+                return user
 
     logout: ->
         @.removeToken()
