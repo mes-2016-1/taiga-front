@@ -66,23 +66,18 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
         "tgErrorHandlingService",
         "$tgModel",
         "tgKanbanUserstories",
-        "$tgStorage"
+        "$tgStorage",
+        "tgFilterRemoteStorageService"
     ]
 
     constructor: (@scope, @rootscope, @repo, @confirm, @rs, @rs2, @params, @q, @location,
                   @appMetaService, @navUrls, @events, @analytics, @translate, @errorHandlingService,
-                  @model, @kanbanUserstoriesService, @storage) ->
+                  @model, @kanbanUserstoriesService, @storage, @filterRemoteStorageService) ->
         bindMethods(@)
         @.zoom = @storage.get("kanban_zoom") or 0
         @.openFilter = false
 
-        if _.isEmpty(@location.search())
-            filters = @rs.userstories.getFilters(@params.pslug, "kanban-filters")
-            if Object.keys(filters).length
-                @location.search(filters)
-                @location.replace()
-
-                return
+        return if @.applyStoredFilters(@params.pslug, "kanban-filters")
 
         @scope.sectionName = @translate.instant("KANBAN.SECTION_NAME")
         @scope.statusViewModes = {}
@@ -104,9 +99,6 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
 
         taiga.defineImmutableProperty @.scope, "usByStatus", () =>
             return @kanbanUserstoriesService.usByStatus
-
-    storeFilters: ->
-        @rs.userstories.storeFilters(@params.pslug, @location.search(), "kanban-filters")
 
     changeQ: (q) ->
         @.replaceFilter("q", q)
@@ -136,29 +128,13 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
         filters.assigned_to = urlfilters.assigned_to
         filters.owner = urlfilters.owner
 
-        @rs.userstories.getFiltersRemote(@scope.projectId, 'kanban-custom-filters').then (userFilters) =>
+        @filterRemoteStorageService.getFilters(@scope.projectId, 'kanban-custom-filters').then (userFilters) =>
             userFilters[name] = filters
 
-            @rs.userstories.storeFiltersRemote(@scope.projectId, userFilters, 'kanban-custom-filters').then(@.generateFilters)
-
-    formatSelectedFilters: (type, list, urlIds) ->
-        selectedIds = urlIds.split(',')
-        selectedFilters = _.filter list, (it) ->
-            selectedIds.indexOf(_.toString(it.id)) != -1
-
-        return _.map selectedFilters, (it) ->
-            return {
-                id: it.id
-                key: type + ":" + it.id
-                dataType: type,
-                name: it.name
-                color: it.color
-            }
+            @filterRemoteStorageService.storeFilters(@scope.projectId, userFilters, 'kanban-custom-filters').then(@.generateFilters)
 
     generateFilters: ->
-        #TODO: on demand¿?
-
-        @.storeFilters()
+        @.storeFilters(@params.pslug, @location.search(), "kanban-filters")
 
         urlfilters = @location.search()
 
@@ -172,7 +148,7 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
 
         return @q.all([
             @rs.userstories.filtersData(loadFilters),
-            @rs.userstories.getFiltersRemote(@scope.projectId, 'kanban-custom-filters')
+            @filterRemoteStorageService.getFilters(@scope.projectId, 'kanban-custom-filters')
         ]).then (result) =>
             data = result[0]
             customFiltersRaw = result[1]
@@ -246,11 +222,6 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
             @.customFilters = []
             _.forOwn customFiltersRaw, (value, key) =>
                 @.customFilters.push({id: key, name: key, filter: value})
-
-            console.log "----------"
-            console.log "filters", @.filters
-            console.log "selected", @.selectedFilters
-            console.log "custom", customFiltersRaw
 
     initializeEventHandlers: ->
         @scope.$on "usform:new:success", (event, us) =>
@@ -390,7 +361,8 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
         return promise.then (project) =>
             @.fillUsersAndRoles(project.members, project.roles)
             @.initializeSubscription()
-            @.loadKanban().then(@.generateFilters)
+            @.loadKanban()
+            @.generateFilters()
 
 
     ## View Mode methods

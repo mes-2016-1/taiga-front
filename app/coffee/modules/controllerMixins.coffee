@@ -110,4 +110,40 @@ class FiltersMixin
         location = if load then @location else @location.noreload(@scope)
         location.search(name, value)
 
+    applyStoredFilters: (projectSlug, key) ->
+        if _.isEmpty(@location.search())
+            filters = @.getFilters(projectSlug, key)
+            if Object.keys(filters).length
+                @location.search(filters)
+                @location.replace()
+
+                return true
+
+        return false
+
+    storeFilters: (projectSlug, params, filtersHashSuffix) ->
+        ns = "#{projectSlug}:#{filtersHashSuffix}"
+        hash = taiga.generateHash([projectSlug, ns])
+        @storage.set(hash, params)
+
+    getFilters: (projectSlug, filtersHashSuffix) ->
+        ns = "#{projectSlug}:#{filtersHashSuffix}"
+        hash = taiga.generateHash([projectSlug, ns])
+
+        return @storage.get(hash) or {}
+
+    formatSelectedFilters: (type, list, urlIds) ->
+        selectedIds = urlIds.split(',')
+        selectedFilters = _.filter list, (it) ->
+            selectedIds.indexOf(_.toString(it.id)) != -1
+
+        return _.map selectedFilters, (it) ->
+            return {
+                id: it.id
+                key: type + ":" + it.id
+                dataType: type,
+                name: it.name
+                color: it.color
+            }
+
 taiga.FiltersMixin = FiltersMixin

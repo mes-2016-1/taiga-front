@@ -1,6 +1,7 @@
 .taskboard {
     height: $main-height;
     overflow: hidden;
+    position: relative;
     h1,
     .graphics-container,
     .summary {

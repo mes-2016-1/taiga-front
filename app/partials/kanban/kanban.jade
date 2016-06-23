@@ -23,7 +23,10 @@ div.wrapper(tg-kanban, ng-controller="KanbanController as ctrl"
             value="ctrl.zoom"
             storage="kanban_zoom"
         )
-        button.button-filter(ng-click="ctrl.openFilter = !ctrl.openFilter")
+        button.button-filter(
+            ng-class="{'button-filters-applied': !!ctrl.selectedFilters.length}"
+            ng-click="ctrl.openFilter = !ctrl.openFilter"
+        )
             tg-svg(svg-icon="icon-filters")
 
         include ../includes/modules/kanban-table
